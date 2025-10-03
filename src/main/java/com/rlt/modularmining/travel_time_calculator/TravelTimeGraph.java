@@ -34,6 +34,11 @@ public class TravelTimeGraph {
     Map<String, ArrayList<Edge>> graph;
     Map<String, HashMap<String, Path>> distances;
     
+    public void clear() {
+        graph = new HashMap<>();
+        distances = new HashMap<>();
+    }
+
     public void addPath(String path) {
         String[] nodsAndTimes = path.split(";");
         String from = nodsAndTimes[0];
