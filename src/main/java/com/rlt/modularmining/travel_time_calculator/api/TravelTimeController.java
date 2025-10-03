@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -14,8 +15,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import com.rlt.modularmining.travel_time_calculator.TravelTimeGraph;
+import com.rlt.modularmining.travel_time_calculator.dto.FromToData;
+import com.rlt.modularmining.travel_time_calculator.dto.FromToResponse;
+import com.rlt.modularmining.travel_time_calculator.Path;
 
 
 @RestController
@@ -61,6 +68,20 @@ public class TravelTimeController {
         } catch (IOException | CsvException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Failed to process the CSV file: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/fastest-path")
+    public FromToResponse postFastestPath(@RequestBody FromToData fromTo) {
+        String from = fromTo.getFrom();
+        String to = fromTo.getTo();
+        Map<String, HashMap<String, Path>> allDistances = graph.getAllDistances();
+        if (allDistances.containsKey(from) && allDistances.get(from).containsKey(to)) {
+            Path path = allDistances.get(from).get(to);
+            return new FromToResponse(path.getNodes(), path.getTotalWeight());
+        }
+        else {
+            return new FromToResponse(new ArrayList<>(), 0); // empty response
         }
     }
 }
